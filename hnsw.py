@@ -3,7 +3,7 @@ from heapq import heapify, heappop, heappush
 import numpy as np
 
 
-class HNSW(object):
+class HNSW:
 
     def __init__(self, L=5, mL=0.62, efc=10):
         self._L = L
@@ -65,9 +65,9 @@ class HNSW(object):
     def insert(self, vec, efc=10):
 
         # if the index is empty, insert the vector into all layers and return
-        if not index[0]:
+        if not self._index[0]:
             i = None
-            for graph in index[::-1]:
+            for graph in self._index[::-1]:
                 graph.append((vec, [], i))
                 i = 0
             return
@@ -75,14 +75,14 @@ class HNSW(object):
         l = self._get_insert_layer()
 
         start_v = 0
-        for n, graph in enumerate(index):
+        for n, graph in enumerate(self._index):
 
             # perform insertion for layers [l, L) only
             if n < l:
-                start_v, _ = _search_layer(graph, start_v, vec, ef=1)[0]
+                start_v, _ = self._search_layer(graph, start_v, vec, ef=1)[0]
             else:
-                node = (vec, [], len(index[n+1]) if n < self._L-1 else None)
-                nns = _search_layer(graph, start_v, vec, ef=efc)
+                node = (vec, [], len(self._index[n+1]) if n < self._L-1 else None)
+                nns = self._search_layer(graph, start_v, vec, ef=efc)
                 for nn in nns:
                     node.append(nn[1])  # outbound connections to NNs
                     graph[nn[1]].append(len(graph))  # inbound connections to node
@@ -90,3 +90,8 @@ class HNSW(object):
 
             # set the starting vertex to the nearest neighbor in the next layer
             start_v = graph[start_v][2]
+
+if __name__ == '__main__':
+    h = HNSW()
+    for x in range(200):
+        h.insert(np.random.randn(1,345))

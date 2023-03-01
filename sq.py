@@ -5,12 +5,14 @@ class ScalarQuantizer:
 
     def __init__(self):
         self._dataset = None
+        self._starts = None
+        self._steps = None
 
-    def create(self):
+    def create(self, dataset):
         """Calculates and stores SQ parameters based on the input dataset."""
-        self._dtype = dataset.dtype  # original dtype
-        self._starts = np.min(dataset, axis=1)
-        self._steps = (np.max(dataset, axis=1) - self._starts) / 255
+        self._starts = np.min(dataset)
+        self._steps = (np.max(dataset) - self._starts) / 255
+
 
         # the internal dataset uses `uint8_t` quantization
         self._dataset = np.uint8((dataset - self._starts) / self._steps)
@@ -28,4 +30,7 @@ class ScalarQuantizer:
         if self._dataset:
             return self._dataset
         raise ValueError("Call ScalarQuantizer.create() first")
+
+    
+
 
