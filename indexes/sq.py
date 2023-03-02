@@ -1,10 +1,12 @@
 import numpy as np
 
+from ._base import _BaseIndex
 
-class ScalarQuantizer:
+
+class ScalarQuantizer(_BaseIndex):
 
     def __init__(self):
-        self._dataset = None
+        self._index = None
         self._starts = None
         self._steps = None
 
@@ -12,10 +14,12 @@ class ScalarQuantizer:
         """Calculates and stores SQ parameters based on the input dataset."""
         self._starts = np.min(dataset)
         self._steps = (np.max(dataset) - self._starts) / 255
+        self._index = np.uint8((dataset - self._starts) / self._steps)
 
-
-        # the internal dataset uses `uint8_t` quantization
-        self._dataset = np.uint8((dataset - self._starts) / self._steps)
+    def search(self, vector, nq=10):
+        """Performs quantization + naive search."""
+        quantized = self.quantize(vector)
+        return super().search(quantized, nq)
 
     def quantize(self, vector):
         """Quantizes the input vector based on SQ parameters"""
@@ -25,12 +29,8 @@ class ScalarQuantizer:
         """Restores the original vector using SQ parameters."""
         return (vector * self._steps) + self._starts
 
-    @property
-    def dataset(self):
-        if self._dataset:
-            return self._dataset
-        raise ValueError("Call ScalarQuantizer.create() first")
 
-    
-
-
+if __name__ == "__main__":
+    sq = ScalarQuantizer()
+    sq.create(np.random.randn(1000, 256))
+    print(sq.search(np.random.randn(256)))
