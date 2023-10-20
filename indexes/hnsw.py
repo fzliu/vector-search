@@ -100,9 +100,13 @@ class HNSW(_BaseIndex):
 
 
 if __name__ == "__main__":
+    dim = 128
+    nvec = 1000
     hnsw = HNSW()
-    hnsw.create(np.random.randn(1000, 256))
-    print(hnsw.search(np.random.randn(256)))
+
+
+    hnsw.create([np.random.randn(dim) for _ in range(nvec)])
+    print(hnsw.search(np.random.randn(dim)))
 
 
 

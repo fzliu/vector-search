@@ -3,6 +3,21 @@ import queue
 import numpy as np
 
 
+class immarray(np.ndarray):
+    """Immutable `array` class.
+    Immediately sets `writeable` to false and adds a hash function.
+    """
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls, *args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.flags.writeable = False
+
+    def __hash__(self):
+        return id(self)
+
+
 class _BaseIndex:
 
     def __init__(self):
